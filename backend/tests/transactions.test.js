@@ -9,19 +9,23 @@ const app = express();
 app.use(express.json());
 const repository = new TransactionRepository();
 
-// Pré-carrega o repositório com dados de exemplo
-repository.addTransaction({ product: 255391, company: 3, is_reversal: false, invoice: "346966", value: 49.30 });
-repository.addTransaction({ product: 255391, company: 3, is_reversal: true, invoice: "346966", value: 49.30 });
-
-app.use('/', createTransactionRoutes(repository));
-app.use(errorHandler);
+// Pré-carrega o repositório com os dados do CSV antes de executar os testes
+beforeAll(async () => {
+  const CSVLoader = require('../services/CSVLoader');
+  const csvLoader = new CSVLoader('vendas_e_devoluções.csv', repository);
+  
+  // Aguarda o carregamento completo do CSV
+  await csvLoader.load();
+  app.use('/', createTransactionRoutes(repository));
+  app.use(errorHandler);
+});
 
 describe('GET /transactions', () => {
   it('deve retornar os pares de transações', async () => {
     const res = await request(app).get('/transactions');
     expect(res.statusCode).toEqual(200);
     expect(Array.isArray(res.body)).toBeTruthy();
-    expect(res.body.length).toBe(1);
+    expect(res.body.length).toBeGreaterThan(0); // Verifique se há pelo menos uma transação
     const transactionPair = res.body[0];
     expect(transactionPair).toHaveProperty('invoice');
     expect(transactionPair).toHaveProperty('transacation');

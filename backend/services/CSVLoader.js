@@ -11,12 +11,15 @@ class CSVLoader {
 
   load() {
     return new Promise((resolve, reject) => {
+      let rowCount = 0; // Variável para contar as linhas processadas
+  
       fs.createReadStream(this.filePath)
         .pipe(csv({ separator: ',' }))
         .on('data', (row) => {
           try {
-            // Mapeamento dos campos conforme o CSV:
-            // cd_produto,tp_valor,cd_empresa,round,nr_dctoorigem,nr_sequencia,cd_valor,cd_historico,in_estorno,dt_movimento,dt_cadastro
+            rowCount++; // Incrementa o contador a cada linha processada
+            console.log(`Linha ${rowCount}:`, row); // Log da linha atual
+  
             const transaction = new Transaction(
               parseInt(row.cd_produto, 10),
               parseInt(row.cd_empresa, 10),
@@ -26,17 +29,16 @@ class CSVLoader {
             );
             this.repository.addTransaction(transaction);
           } catch (error) {
-            // Loga o erro e continua processando as demais linhas
             console.error("Erro ao processar linha do CSV:", row, error);
           }
         })
         .on('end', () => {
-          console.log('CSV carregado com sucesso.');
+          console.log(`CSV carregado com sucesso. Total de linhas processadas: ${rowCount}`);
           resolve();
         })
         .on('error', (err) => reject(err));
     });
-  }
+  }  
 }
 
 module.exports = CSVLoader;
