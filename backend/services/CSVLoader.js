@@ -18,7 +18,7 @@ class CSVLoader {
         .on('data', (row) => {
           try {
             rowCount++; // Incrementa o contador a cada linha processada
-            console.log(`Linha ${rowCount}:`, row); // Log da linha atual
+            //console.log(`Linha ${rowCount}:`, row); // Log da linha atual
   
             const transaction = new Transaction(
               parseInt(row.cd_produto, 10),

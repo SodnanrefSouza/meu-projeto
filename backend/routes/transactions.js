@@ -9,6 +9,7 @@ function createTransactionRoutes(repository) {
   router.get('/transactions', (req, res, next) => {
     try {
       const transactions = repository.getAll();
+      //console.log('Transações carregadas:', transactions);
 
       // Agrupa as transações pelo campo "invoice"
       const grouped = transactions.reduce((acc, t) => {
@@ -17,22 +18,36 @@ function createTransactionRoutes(repository) {
         return acc;
       }, {});
 
-      // Para cada grupo, busca a venda e a devolução e forma o par
+      //console.log('Transações agrupadas:', grouped);
+
+      // Para cada grupo, busca as vendas e devoluções
       const result = [];
       for (const invoice in grouped) {
         const group = grouped[invoice];
-        const sale = group.find(t => t.is_reversal === false);
-        const refund = group.find(t => t.is_reversal === true);
-        if (sale && refund) {
-          result.push({
-            invoice,
-            transacation: { // conforme solicitado (observe a grafia)
-              sale,
-              refund
-            }
-          });
+        //console.log(`Grupo para o invoice ${invoice}:`, group);
+
+        // Filtra todas as transações de venda (não estornadas) e devolução (estornadas)
+        const sales = group.filter(t => t.is_reversal === false);
+        const refunds = group.filter(t => t.is_reversal === true);
+
+        //console.log(`Vendas para o invoice ${invoice}:`, sales);
+        //console.log(`Devoluções para o invoice ${invoice}:`, refunds);
+
+        // Agora, vamos sempre adicionar as transações, mesmo que não haja par completo
+        result.push({
+          invoice,
+          transaction: { 
+            sale: sales,  // Todas as transações de venda
+            refund: refunds  // Todas as transações de devolução
+          }
+        });
+
+        if (sales.length === 0 || refunds.length === 0) {
+          //console.log(`Par de transações faltando para o invoice ${invoice}`);
         }
       }
+
+      //console.log('Resultado final:', result);
       res.json(result);
     } catch (error) {
       next(error);
