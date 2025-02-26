@@ -8,8 +8,19 @@ Este projeto consiste em:
   - Agrupa as transações de venda e devolução com base no campo `nr_dctoorigem`.
   - Disponibiliza o endpoint GET `/transactions`.
   - Utiliza modularização, tratamento centralizado de erros e testes de integração (Jest e Supertest).
+  - comandos: 
+    - cd backend/ 
+    - node .\index.js
+    - link: http://localhost:3000 
 
 - **Frontend:** Uma aplicação React que consome a API e exibe os dados em uma tabela.
+  - comandos: 
+    - cd frontend/ 
+    - npm start 
+    - link: http://localhost:3001 
+    
+  
+
 
 ## Pré-requisitos
 
